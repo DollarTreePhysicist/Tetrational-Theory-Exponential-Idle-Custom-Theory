@@ -103,7 +103,7 @@ var tick = (elapsedTime, multiplier) => {
 
     currencyRho.value += dt * BigNumber.from(GetTetration(getC3(c3.level) * getC4(c4.level), getC5(c5.level)));
     currencyBeta.value += dt_b * getC2(c2.level);
-    currencyDelta.value += dt_d * getC1(c1.level) * BigNumber.from(getSuperLog(10, currencyRho.value));
+    currencyDelta.value += dt_d * getC1(c1.level) * BigNumber.from(getSLog10(currencyRho.value));
 }
 
 var getPrimaryEquation = () => {
@@ -115,16 +115,17 @@ var getPrimaryEquation = () => {
 var getSecondaryEquation = () => theory.latexSymbol + "= 10\\uparrow{0.1}slog_{10}(\\rho)";
 
 
-var getSuperLog = (base, z) => {
+var getSLog10 = (z) => {
 	let result = BigNumber.from(0);
-	while (Math.floor(z) > 1) {
-		z = ( Math.log10(z) / Math.log10(base) );
-		result += 1;
-	}
-	result += z;
+	result = z.depth + Math.log10(BigNumber.fromComponents(z.sign, 0, z.exponent) );
 	return result;
 }
 
+var getSlog_n = (base, z) => {
+	let result = BigNumber.from(0);
+	result = (z.depth + Math.log10(BigNumber.fromComponents(z.sign, 0, z.exponent) ) ) / getSLog10(base);
+	return result;
+}
 
 var GetTetration = (base, tet) => {
 	let result = BigNumber.from(1);
@@ -147,7 +148,7 @@ var GetTetration = (base, tet) => {
 
 var getPublicationMultiplier = (tau) => (1);
 var getPublicationMultiplierFormula = (symbol) => "\\frac{{" + symbol + "}^{0.164}}{3}";
-var getTau = () => getSuperLog(10, currencyRho.value);
+var getTau = () => BigNumber.from(10).Pow(0.1 * getSLog10(currencyRho.value) );
 
 //var get2DGraphValue = () => currencyRho.value.sign * (BigNumber.ONE + currencyRho.value.abs()).log10().toNumber();
 
